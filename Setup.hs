@@ -26,7 +26,7 @@ main = defaultMainWithHooks hk
 
 compileCheck :: FilePath -> String -> String -> String -> IO Bool
 compileCheck cc testName message sourceCode = do
-        withTempDirectory normal "" testName $ \tmpDir -> do
+    withTempDirectory normal "" testName $ \tmpDir -> do
         writeFile (tmpDir ++ "/" ++ testName ++ ".c") sourceCode
         ec <- myRawSystemExitCode normal cc [tmpDir </> testName ++ ".c", "-o", tmpDir ++ "/a","-no-hs-main"]
         notice normal $ message ++ show (ec == ExitSuccess)
@@ -67,26 +67,26 @@ checkGetrandom cc lbi = do
                                 ])
         if libcGetrandom then return $ addOptions cArgsLibc cArgsLibc lbi
         else do
-        syscallGetrandom <- compileCheck cc "testSyscallGetrandom" "Result of syscall getrandom() Test: "
-                (unlines        [ "#define _GNU_SOURCE"
-                                , "#include <errno.h>"
-                                , "#include <unistd.h>"
-                                , "#include <sys/syscall.h>"
-                                , "#include <sys/types.h>"
-                                , "#include <linux/random.h>"
+            syscallGetrandom <- compileCheck cc "testSyscallGetrandom" "Result of syscall getrandom() Test: "
+                    (unlines        [ "#define _GNU_SOURCE"
+                                    , "#include <errno.h>"
+                                    , "#include <unistd.h>"
+                                    , "#include <sys/syscall.h>"
+                                    , "#include <sys/types.h>"
+                                    , "#include <linux/random.h>"
 
-                                , "static ssize_t getrandom(void* buf, size_t buflen, unsigned int flags)"
-                                , "{"
-                                , "    return syscall(SYS_getrandom, buf, buflen, flags);"
-                                , "}"
+                                    , "static ssize_t getrandom(void* buf, size_t buflen, unsigned int flags)"
+                                    , "{"
+                                    , "    return syscall(SYS_getrandom, buf, buflen, flags);"
+                                    , "}"
 
-                                , "int main()"
-                                , "{"
-                                , "    char tmp;"
-                                , "    return getrandom(&tmp, sizeof(tmp), GRND_NONBLOCK) != -1;"
-                                , "}"
-                                ])
-        return $ if syscallGetrandom then addOptions cArgs cArgs lbi else lbi
+                                    , "int main()"
+                                    , "{"
+                                    , "    char tmp;"
+                                    , "    return getrandom(&tmp, sizeof(tmp), GRND_NONBLOCK) != -1;"
+                                    , "}"
+                                    ])
+            return $ if syscallGetrandom then addOptions cArgs cArgs lbi else lbi
   where cArgs = ["-DHAVE_GETRANDOM"]
         cArgsLibc = cArgs ++ ["-DHAVE_LIBC_GETRANDOM"]
 
